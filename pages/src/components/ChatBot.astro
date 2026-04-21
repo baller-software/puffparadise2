@@ -1,0 +1,493 @@
+---
+// Demo chatbot widget — scripted conversation with keyword matching.
+// All logic and content is client-side; no external APIs.
+---
+
+<!-- Floating chat bubble -->
+<div id="chatbot-root" style="position: fixed; bottom: 24px; right: 24px; z-index: 100;">
+
+  <!-- Chat Panel -->
+  <div
+    id="chat-panel"
+    role="dialog"
+    aria-label="Puff Paradise Chat Assistant"
+    aria-modal="true"
+    style="
+      position: absolute;
+      bottom: 64px;
+      right: 0;
+      width: 340px;
+      max-width: calc(100vw - 32px);
+      border-radius: 16px;
+      border: 1px solid var(--color-border);
+      background-color: var(--color-background);
+      box-shadow: 0 20px 50px rgba(0,0,0,0.15);
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+      opacity: 0;
+      transform: translateY(12px) scale(0.97);
+      pointer-events: none;
+      transition: opacity 200ms ease-out, transform 200ms ease-out;
+      max-height: calc(100vh - 120px);
+    "
+  >
+    <!-- Header -->
+    <div style="background-color: var(--color-primary); padding: 14px 16px; display: flex; align-items: center; justify-content: space-between; flex-shrink: 0;">
+      <div style="display: flex; align-items: center; gap: 10px;">
+        <div style="width: 32px; height: 32px; border-radius: 50%; background: rgba(255,255,255,0.2); display: flex; align-items: center; justify-content: center; flex-shrink: 0;">
+          <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="white" style="width: 16px; height: 16px;" aria-hidden="true">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M7.5 8.25h9m-9 3H12m-9.75 1.51c0 1.6 1.123 2.994 2.707 3.227 1.129.166 2.27.293 3.423.379.35.026.67.21.865.501L12 21l2.755-4.133a1.14 1.14 0 01.865-.501 48.172 48.172 0 003.423-.379c1.584-.233 2.707-1.626 2.707-3.228V6.741c0-1.602-1.123-2.995-2.707-3.228A48.394 48.394 0 0012 3c-2.392 0-4.744.175-7.043.513C3.373 3.746 2.25 5.14 2.25 6.741v6.018z" />
+          </svg>
+        </div>
+        <div>
+          <div style="font-size: 13px; font-weight: 600; color: white; line-height: 1.2;">Puff Paradise Assistant</div>
+          <div style="font-size: 11px; color: rgba(255,255,255,0.75); display: flex; align-items: center; gap: 4px;">
+            <span style="width: 6px; height: 6px; border-radius: 50%; background: #4ade80; display: inline-block;"></span>
+            Online
+          </div>
+        </div>
+      </div>
+      <button
+        id="chat-close-btn"
+        aria-label="Close chat"
+        style="width: 28px; height: 28px; border-radius: 50%; background: rgba(255,255,255,0.15); border: none; cursor: pointer; display: flex; align-items: center; justify-content: center; color: white; transition: background 150ms;"
+      >
+        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" style="width: 14px; height: 14px;" aria-hidden="true">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" />
+        </svg>
+      </button>
+    </div>
+
+    <!-- Demo Banner -->
+    <div style="background: linear-gradient(90deg, #fef3c7, #fde68a); padding: 8px 14px; border-bottom: 1px solid #fbbf24; flex-shrink: 0;">
+      <p style="font-size: 11px; color: #92400e; margin: 0; line-height: 1.4;">
+        ✨ <strong>Demo Preview</strong> — See what a conversational assistant could do for your business.
+      </p>
+    </div>
+
+    <!-- Messages -->
+    <div
+      id="chat-messages"
+      role="log"
+      aria-live="polite"
+      aria-label="Chat messages"
+      style="flex: 1; overflow-y: auto; padding: 16px; display: flex; flex-direction: column; gap: 12px; min-height: 200px; max-height: 320px;"
+    >
+    </div>
+
+    <!-- Input Area -->
+    <form
+      id="chat-input-form"
+      autocomplete="off"
+      style="border-top: 1px solid var(--color-border); padding: 12px; display: flex; gap: 8px; flex-shrink: 0;"
+      aria-label="Send a message"
+    >
+      <input
+        id="chat-input"
+        type="text"
+        placeholder="Type a message..."
+        maxlength="200"
+        aria-label="Chat message"
+        style="
+          flex: 1;
+          border: 1px solid var(--color-border);
+          border-radius: 8px;
+          padding: 8px 12px;
+          font-size: 13px;
+          background: transparent;
+          color: var(--color-text-primary);
+          outline: none;
+          min-height: 36px;
+          font-family: inherit;
+        "
+      />
+      <button
+        type="submit"
+        aria-label="Send message"
+        style="
+          width: 36px;
+          height: 36px;
+          border-radius: 8px;
+          background-color: var(--color-primary);
+          border: none;
+          cursor: pointer;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          color: white;
+          flex-shrink: 0;
+          transition: background 150ms;
+        "
+      >
+        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" style="width: 16px; height: 16px;" aria-hidden="true">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M6 12L3.269 3.126A59.768 59.768 0 0121.485 12 59.77 59.77 0 013.27 20.876L5.999 12zm0 0h7.5" />
+        </svg>
+      </button>
+    </form>
+  </div>
+
+  <!-- Bubble Button -->
+  <button
+    id="chat-bubble-btn"
+    aria-label="Open chat assistant"
+    aria-expanded="false"
+    aria-controls="chat-panel"
+    style="
+      width: 52px;
+      height: 52px;
+      border-radius: 50%;
+      background-color: var(--color-primary);
+      border: none;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: white;
+      box-shadow: 0 4px 20px rgba(37,99,235,0.4);
+      transition: transform 200ms ease-out, box-shadow 200ms;
+      position: relative;
+    "
+  >
+    <!-- Chat icon -->
+    <svg id="bubble-chat-icon" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" style="width: 24px; height: 24px;" aria-hidden="true">
+      <path stroke-linecap="round" stroke-linejoin="round" d="M7.5 8.25h9m-9 3H12m-9.75 1.51c0 1.6 1.123 2.994 2.707 3.227 1.129.166 2.27.293 3.423.379.35.026.67.21.865.501L12 21l2.755-4.133a1.14 1.14 0 01.865-.501 48.172 48.172 0 003.423-.379c1.584-.233 2.707-1.626 2.707-3.228V6.741c0-1.602-1.123-2.995-2.707-3.228A48.394 48.394 0 0012 3c-2.392 0-4.744.175-7.043.513C3.373 3.746 2.25 5.14 2.25 6.741v6.018z" />
+    </svg>
+    <!-- X icon (hidden) -->
+    <svg id="bubble-close-icon" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" style="width: 22px; height: 22px; display: none;" aria-hidden="true">
+      <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" />
+    </svg>
+  </button>
+</div>
+
+<script>
+  // ── Conversation Data ──────────────────────────────────────────────────────
+
+  const RESPONSES = {
+    welcome: {
+      text: "Hi! 👋 I'm the Puff Paradise assistant. How can I help you today?",
+      quickReplies: [
+        { label: '🛒 Our Products', action: 'products' },
+        { label: '📍 Location & Hours', action: 'location' },
+        { label: '❓ FAQs', action: 'faqs' },
+        { label: '📞 Contact Us', action: 'contact' },
+      ],
+    },
+    products: {
+      text: "We carry a wide selection. What are you looking for?",
+      quickReplies: [
+        { label: '💨 Vapes & E-Cigs', action: 'vapes' },
+        { label: '🌿 Kratom', action: 'kratom' },
+        { label: '🌱 Hemp / CBD', action: 'hemp' },
+        { label: '🚬 Smoking Supplies', action: 'smoking' },
+      ],
+    },
+    vapes: {
+      text: "We stock the latest vaping devices and flavors — including Lost Mary products! Our shelves are always stocked with what's hot. Stop by and see for yourself.",
+      quickReplies: [
+        { label: '📍 Visit Us', action: 'location' },
+        { label: '📞 Call Us', action: 'call' },
+      ],
+    },
+    kratom: {
+      text: "We carry quality kratom products. Our knowledgeable staff can help you understand the options. Come check out our current selection!",
+      quickReplies: [
+        { label: '📍 Location & Hours', action: 'location' },
+        { label: '📞 Call Us', action: 'call' },
+      ],
+    },
+    hemp: {
+      text: "We offer a variety of hemp-derived CBD products from trusted brands. Our staff can help you find the right product for your wellness needs.",
+      quickReplies: [
+        { label: '📍 Location & Hours', action: 'location' },
+        { label: '📞 Call Us', action: 'call' },
+      ],
+    },
+    smoking: {
+      text: "We have pipes, papers, wraps, lighters, and all the accessories you need. Come browse our collection in store!",
+      quickReplies: [
+        { label: '📍 Location & Hours', action: 'location' },
+        { label: '📞 Call Us', action: 'call' },
+      ],
+    },
+    location: {
+      text: "Find us at 16383 FM 548, Suite 112, Forney, TX 75216. We're open daily from 9 AM to 10 PM!",
+      quickReplies: [
+        { label: '🗺️ Get Directions', action: 'directions' },
+        { label: '📞 Call Us', action: 'call' },
+        { label: '✉️ Send a Message', action: 'contact_form' },
+      ],
+    },
+    directions: {
+      text: "Click below to open directions in Google Maps — we're in a shopping center on FM 548 in Forney, plenty of parking!",
+      quickReplies: [
+        { label: '🗺️ Open Google Maps', action: 'open_maps', url: 'https://maps.google.com/?q=16383+FM+548+Suite+112+Forney+TX+75216' },
+        { label: '🔙 Back', action: 'location' },
+      ],
+    },
+    call: {
+      text: "Give us a call at (936) 900-1762. We'd love to hear from you — feel free to ask about any product!",
+      quickReplies: [
+        { label: '📱 Call Now', action: 'call_now', url: 'tel:+19369001762' },
+        { label: '✉️ Send a Message', action: 'contact_form' },
+      ],
+    },
+    contact: {
+      text: "You can reach us by phone, online message, or visit us in store!",
+      quickReplies: [
+        { label: '📞 Call', action: 'call' },
+        { label: '✉️ Contact Form', action: 'contact_form' },
+        { label: '📍 Location', action: 'location' },
+      ],
+    },
+    contact_form: {
+      text: "Head to our Contact page and fill out the form — we respond as quickly as possible!",
+      quickReplies: [
+        { label: '📩 Go to Contact Page', action: 'nav_contact', url: '/contact' },
+      ],
+    },
+    faqs: {
+      text: "Here are some common questions:",
+      quickReplies: [
+        { label: '🪪 Age Requirements', action: 'faq_age' },
+        { label: '💳 Payment Methods', action: 'faq_payment' },
+        { label: '🅿️ Parking', action: 'faq_parking' },
+        { label: '💼 Now Hiring?', action: 'faq_hiring' },
+      ],
+    },
+    faq_age: {
+      text: "You must be 21+ to purchase tobacco, vape, and hemp products in Texas. Please bring a valid photo ID when you visit.",
+      quickReplies: [
+        { label: '❓ More FAQs', action: 'faqs' },
+        { label: '📍 Location', action: 'location' },
+      ],
+    },
+    faq_payment: {
+      text: "We accept cash and major credit/debit cards. Some products may require cash due to payment processing restrictions.",
+      quickReplies: [
+        { label: '❓ More FAQs', action: 'faqs' },
+        { label: '📍 Location', action: 'location' },
+      ],
+    },
+    faq_parking: {
+      text: "Yes! We're in a shopping center on FM 548, Suite 112. There's plenty of convenient parking right out front.",
+      quickReplies: [
+        { label: '🗺️ Get Directions', action: 'directions' },
+        { label: '❓ More FAQs', action: 'faqs' },
+      ],
+    },
+    faq_hiring: {
+      text: "Yes! Puff Paradise is looking for motivated and reliable team members. Stop by in store or send us a message through the contact form.",
+      quickReplies: [
+        { label: '✉️ Contact Form', action: 'contact_form' },
+        { label: '📍 Visit Us', action: 'location' },
+      ],
+    },
+    fallback: {
+      text: "I'm not sure about that one! Try one of the options below, or call us directly at (936) 900-1762.",
+      quickReplies: [
+        { label: '🛒 Our Products', action: 'products' },
+        { label: '📍 Location & Hours', action: 'location' },
+        { label: '❓ FAQs', action: 'faqs' },
+      ],
+    },
+  };
+
+  // Keyword → action mapping (case-insensitive substring match)
+  const KEYWORDS = [
+    { keywords: ['vape', 'vaping', 'e-cig', 'ecig', 'pod', 'juice', 'flavor', 'lost mary', 'disposable'], action: 'vapes' },
+    { keywords: ['kratom'], action: 'kratom' },
+    { keywords: ['hemp', 'cbd', 'cannabis'], action: 'hemp' },
+    { keywords: ['smoke', 'smoking', 'pipe', 'paper', 'wrap', 'lighter', 'cigar'], action: 'smoking' },
+    { keywords: ['address', 'location', 'where', 'directions', 'map', 'fm 548', 'forney', 'find us'], action: 'location' },
+    { keywords: ['hours', 'open', 'close', 'closing', 'when', 'time', 'schedule'], action: 'location' },
+    { keywords: ['phone', 'call', 'number', 'telephone'], action: 'call' },
+    { keywords: ['age', 'id', '21', 'requirement'], action: 'faq_age' },
+    { keywords: ['pay', 'payment', 'cash', 'card', 'credit', 'debit', 'accept'], action: 'faq_payment' },
+    { keywords: ['park', 'parking', 'car'], action: 'faq_parking' },
+    { keywords: ['hire', 'hiring', 'job', 'work', 'employment', 'career', 'apply'], action: 'faq_hiring' },
+    { keywords: ['product', 'sell', 'stock', 'carry', 'offer', 'have'], action: 'products' },
+    { keywords: ['contact', 'email', 'message', 'reach'], action: 'contact' },
+    { keywords: ['faq', 'question', 'help', 'more'], action: 'faqs' },
+    { keywords: ['hi', 'hello', 'hey', 'howdy', 'yo', 'sup'], action: 'welcome' },
+  ];
+
+  // ── State ──────────────────────────────────────────────────────────────────
+
+  let isOpen = false;
+
+  // ── DOM refs ───────────────────────────────────────────────────────────────
+
+  const panel = document.getElementById('chat-panel');
+  const bubbleBtn = document.getElementById('chat-bubble-btn');
+  const closeBtn = document.getElementById('chat-close-btn');
+  const messagesEl = document.getElementById('chat-messages');
+  const inputForm = document.getElementById('chat-input-form');
+  const inputEl = document.getElementById('chat-input');
+  const bubbleChatIcon = document.getElementById('bubble-chat-icon');
+  const bubbleCloseIcon = document.getElementById('bubble-close-icon');
+
+  // ── Helpers ────────────────────────────────────────────────────────────────
+
+  function openPanel() {
+    isOpen = true;
+    panel.style.opacity = '1';
+    panel.style.transform = 'translateY(0) scale(1)';
+    panel.style.pointerEvents = 'all';
+    bubbleChatIcon.style.display = 'none';
+    bubbleCloseIcon.style.display = 'block';
+    bubbleBtn.setAttribute('aria-expanded', 'true');
+    bubbleBtn.setAttribute('aria-label', 'Close chat assistant');
+    inputEl?.focus();
+  }
+
+  function closePanel() {
+    isOpen = false;
+    panel.style.opacity = '0';
+    panel.style.transform = 'translateY(12px) scale(0.97)';
+    panel.style.pointerEvents = 'none';
+    bubbleChatIcon.style.display = 'block';
+    bubbleCloseIcon.style.display = 'none';
+    bubbleBtn.setAttribute('aria-expanded', 'false');
+    bubbleBtn.setAttribute('aria-label', 'Open chat assistant');
+  }
+
+  function addMessage(text, isUser, quickReplies) {
+    const wrap = document.createElement('div');
+    wrap.style.cssText = `display: flex; flex-direction: column; align-items: ${isUser ? 'flex-end' : 'flex-start'}; gap: 6px;`;
+
+    const bubble = document.createElement('div');
+    bubble.style.cssText = `
+      max-width: 85%;
+      padding: 8px 12px;
+      border-radius: ${isUser ? '12px 12px 2px 12px' : '12px 12px 12px 2px'};
+      font-size: 13px;
+      line-height: 1.5;
+      background-color: ${isUser ? 'var(--color-primary)' : 'var(--color-surface)'};
+      color: ${isUser ? 'white' : 'var(--color-text-primary)'};
+      border: ${isUser ? 'none' : '1px solid var(--color-border)'};
+      word-break: break-word;
+    `;
+    bubble.textContent = text;
+    wrap.appendChild(bubble);
+
+    if (!isUser && quickReplies?.length) {
+      const qrWrap = document.createElement('div');
+      qrWrap.style.cssText = 'display: flex; flex-wrap: wrap; gap: 6px; max-width: 100%;';
+
+      quickReplies.forEach(qr => {
+        const btn = document.createElement('button');
+        btn.type = 'button';
+        btn.textContent = qr.label;
+        btn.style.cssText = `
+          padding: 5px 10px;
+          border-radius: 20px;
+          font-size: 11px;
+          font-weight: 500;
+          border: 1px solid var(--color-primary);
+          background: transparent;
+          color: var(--color-primary);
+          cursor: pointer;
+          transition: background 150ms, color 150ms;
+          font-family: inherit;
+          white-space: nowrap;
+        `;
+        btn.addEventListener('mouseenter', () => {
+          btn.style.backgroundColor = 'var(--color-primary)';
+          btn.style.color = 'white';
+        });
+        btn.addEventListener('mouseleave', () => {
+          btn.style.backgroundColor = 'transparent';
+          btn.style.color = 'var(--color-primary)';
+        });
+
+        btn.addEventListener('click', () => {
+          // Disable all quick-reply buttons in this message
+          qrWrap.querySelectorAll('button').forEach(b => {
+            b.disabled = true;
+            b.style.opacity = '0.5';
+            b.style.cursor = 'default';
+          });
+
+          if (qr.url) {
+            // Navigation actions
+            if (qr.url.startsWith('/') || qr.url.startsWith('http')) {
+              addMessage(qr.label, true, null);
+              if (qr.url.startsWith('/')) {
+                window.location.href = qr.url;
+              } else {
+                window.open(qr.url, '_blank', 'noopener,noreferrer');
+                setTimeout(() => respond(qr.action || 'fallback'), 400);
+              }
+            }
+          } else {
+            addMessage(qr.label, true, null);
+            setTimeout(() => respond(qr.action), 400);
+          }
+        });
+
+        qrWrap.appendChild(btn);
+      });
+
+      wrap.appendChild(qrWrap);
+    }
+
+    messagesEl.appendChild(wrap);
+    messagesEl.scrollTop = messagesEl.scrollHeight;
+  }
+
+  function respond(action) {
+    const data = RESPONSES[action] || RESPONSES.fallback;
+    addMessage(data.text, false, data.quickReplies);
+  }
+
+  function matchKeyword(input) {
+    const lower = input.toLowerCase();
+    for (const { keywords, action } of KEYWORDS) {
+      if (keywords.some(kw => lower.includes(kw))) {
+        return action;
+      }
+    }
+    return 'fallback';
+  }
+
+  // ── Events ─────────────────────────────────────────────────────────────────
+
+  bubbleBtn?.addEventListener('click', () => {
+    if (isOpen) {
+      closePanel();
+    } else {
+      openPanel();
+      if (messagesEl.children.length === 0) {
+        setTimeout(() => respond('welcome'), 200);
+      }
+    }
+  });
+
+  closeBtn?.addEventListener('click', closePanel);
+
+  // Close on Escape
+  document.addEventListener('keydown', (e) => {
+    if (e.key === 'Escape' && isOpen) closePanel();
+  });
+
+  inputForm?.addEventListener('submit', (e) => {
+    e.preventDefault();
+    const text = inputEl.value.trim();
+    if (!text) return;
+    addMessage(text, true, null);
+    inputEl.value = '';
+    const action = matchKeyword(text);
+    setTimeout(() => respond(action), 400);
+  });
+
+  // Hover effect on bubble
+  bubbleBtn?.addEventListener('mouseenter', () => {
+    bubbleBtn.style.transform = 'scale(1.08)';
+    bubbleBtn.style.boxShadow = '0 8px 30px rgba(37,99,235,0.5)';
+  });
+  bubbleBtn?.addEventListener('mouseleave', () => {
+    bubbleBtn.style.transform = 'scale(1)';
+    bubbleBtn.style.boxShadow = '0 4px 20px rgba(37,99,235,0.4)';
+  });
+</script>
