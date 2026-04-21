@@ -11,10 +11,19 @@ const base = import.meta.env.BASE_URL.replace(/\/$/, '');
 
   <!-- PAGE HERO -->
   <section
-    class="relative py-20 sm:py-28 flex items-center"
+    class="relative py-20 sm:py-28 flex items-center overflow-hidden"
     style="background: linear-gradient(135deg, #0f172a 0%, #1e1b4b 40%, #172554 70%, #0f172a 100%);"
     aria-label="About page hero"
   >
+    <!-- Background image -->
+    <img
+      src="https://picsum.photos/seed/puffparadise-about-hero/1920/800"
+      alt=""
+      class="absolute inset-0 h-full w-full object-cover opacity-25"
+      loading="eager"
+      aria-hidden="true"
+    />
+    <div class="absolute inset-0" style="background: linear-gradient(135deg, rgba(15,23,42,0.85) 0%, rgba(30,27,75,0.75) 40%, rgba(23,37,84,0.80) 70%, rgba(15,23,42,0.90) 100%);"></div>
     <div class="absolute inset-0 opacity-30" style="background: radial-gradient(ellipse at 60% 40%, #2563eb33 0%, transparent 60%);"></div>
     <div class="relative mx-auto max-w-6xl px-4 sm:px-6 text-center">
       <p class="text-sm font-semibold uppercase tracking-wider mb-4" style="color: var(--color-primary-light);">Our Story</p>
@@ -28,6 +37,16 @@ const base = import.meta.env.BASE_URL.replace(/\/$/, '');
   <!-- COMPANY STORY SECTION -->
   <section class="py-20 sm:py-24" style="background-color: var(--color-background);" aria-labelledby="story-heading">
     <div class="mx-auto max-w-6xl px-4 sm:px-6">
+      <!-- Featured shop image -->
+      <div class="mb-14 rounded-2xl overflow-hidden border shadow-lg" style="border-color: var(--color-border);">
+        <img
+          src="https://picsum.photos/seed/puffparadise-shop-interior/1600/700"
+          alt="Inside Puff Paradise — our Forney store"
+          class="w-full h-64 sm:h-80 lg:h-96 object-cover"
+          loading="lazy"
+        />
+      </div>
+
       <div class="grid lg:grid-cols-2 gap-12 lg:gap-16 items-center">
         <!-- Story Content -->
         <div>
@@ -145,6 +164,38 @@ const base = import.meta.env.BASE_URL.replace(/\/$/, '');
             </div>
           ))}
         </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- GALLERY SECTION -->
+  <section class="py-20 sm:py-24" style="background-color: var(--color-background);" aria-label="Shop gallery">
+    <div class="mx-auto max-w-6xl px-4 sm:px-6">
+      <div class="text-center mb-12">
+        <p class="text-sm font-semibold uppercase tracking-wider mb-3" style="color: var(--color-primary);">A Look Inside</p>
+        <h2 class="text-3xl sm:text-4xl font-bold" style="color: var(--color-text-primary);">Our Forney Store</h2>
+      </div>
+
+      <div class="grid grid-cols-2 lg:grid-cols-4 gap-4">
+        {[
+          { seed: 'puffparadise-gallery-1', label: 'Product displays' },
+          { seed: 'puffparadise-gallery-2', label: 'Top brands' },
+          { seed: 'puffparadise-gallery-3', label: 'Friendly staff' },
+          { seed: 'puffparadise-gallery-4', label: 'Shop floor' },
+        ].map(item => (
+          <div class="group relative aspect-square rounded-2xl overflow-hidden border" style="border-color: var(--color-border);">
+            <img
+              src={`https://picsum.photos/seed/${item.seed}/600/600`}
+              alt={item.label}
+              class="h-full w-full object-cover transition-transform duration-500 group-hover:scale-105"
+              loading="lazy"
+            />
+            <div class="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
+            <div class="absolute bottom-3 left-3 text-xs font-medium text-white opacity-0 group-hover:opacity-100 transition-opacity duration-300">
+              {item.label}
+            </div>
+          </div>
+        ))}
       </div>
     </div>
   </section>

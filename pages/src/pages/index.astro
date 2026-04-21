@@ -36,36 +36,42 @@ const services = [
     description: 'The latest vaping devices and flavors, including the hottest Lost Mary products. We keep our shelves stocked with what\'s new and what\'s popular.',
     colorClass: 'text-purple-600',
     bgClass: 'bg-purple-100',
+    image: 'https://picsum.photos/seed/puffparadise-vapes/800/500',
   },
   {
     title: 'Kratom Products',
     description: 'Quality kratom for your wellness needs. Our knowledgeable staff can help you understand the options and find the right fit.',
     colorClass: 'text-emerald-600',
     bgClass: 'bg-emerald-100',
+    image: 'https://picsum.photos/seed/puffparadise-kratom/800/500',
   },
   {
     title: 'Hemp & CBD',
     description: 'A curated selection of hemp-derived CBD products from trusted brands. Explore natural wellness solutions with guidance from our team.',
     colorClass: 'text-green-600',
     bgClass: 'bg-green-100',
+    image: 'https://picsum.photos/seed/puffparadise-hemp/800/500',
   },
   {
     title: 'Smoking Supplies',
     description: 'Pipes, papers, wraps, lighters, and all the accessories you need. Everything in one convenient location.',
     colorClass: 'text-orange-600',
     bgClass: 'bg-orange-100',
+    image: 'https://picsum.photos/seed/puffparadise-supplies/800/500',
   },
   {
     title: 'Top Industry Brands',
     description: 'We handpick the most respected and popular brands in the industry so you can shop with confidence every visit.',
     colorClass: 'text-blue-600',
     bgClass: 'bg-blue-100',
+    image: 'https://picsum.photos/seed/puffparadise-brands/800/500',
   },
   {
     title: 'Expert Guidance',
     description: 'Our knowledgeable staff are always ready to answer questions and point you toward the products that best fit your needs.',
     colorClass: 'text-sky-600',
     bgClass: 'bg-sky-100',
+    image: 'https://picsum.photos/seed/puffparadise-staff/800/500',
   },
 ];
 
@@ -83,10 +89,20 @@ const serviceIconSVGs = {
 
   <!-- HERO SECTION -->
   <section
-    class="relative flex items-center"
+    class="relative flex items-center overflow-hidden"
     style="min-height: 85vh; background: linear-gradient(135deg, #0f172a 0%, #1e1b4b 40%, #172554 70%, #0f172a 100%);"
     aria-label="Hero"
   >
+    <!-- Background image -->
+    <img
+      src="https://picsum.photos/seed/puffparadise-hero/1920/1080"
+      alt=""
+      class="absolute inset-0 h-full w-full object-cover opacity-30"
+      loading="eager"
+      aria-hidden="true"
+    />
+    <!-- Dark overlay for text readability -->
+    <div class="absolute inset-0" style="background: linear-gradient(135deg, rgba(15,23,42,0.85) 0%, rgba(30,27,75,0.75) 40%, rgba(23,37,84,0.80) 70%, rgba(15,23,42,0.90) 100%);"></div>
     <!-- Decorative gradient overlay -->
     <div class="absolute inset-0 opacity-40" style="background: radial-gradient(ellipse at 30% 50%, #2563eb33 0%, transparent 60%), radial-gradient(ellipse at 70% 30%, #7c3aed22 0%, transparent 50%);"></div>
 
@@ -223,19 +239,30 @@ const serviceIconSVGs = {
       <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
         {services.map((service) => (
           <div
-            class="group rounded-2xl border p-6 transition-all duration-300 hover:-translate-y-1 hover:shadow-lg cursor-default overflow-hidden"
+            class="group rounded-2xl border transition-all duration-300 hover:-translate-y-1 hover:shadow-lg cursor-default overflow-hidden flex flex-col"
             style="background-color: var(--color-background); border-color: var(--color-border);"
           >
-            <div
-              class={`h-10 w-10 rounded-xl flex items-center justify-center mb-4 transition-transform duration-300 group-hover:scale-110 ${service.bgClass} ${service.colorClass}`}
-              aria-hidden="true"
-            >
-              <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="h-5 w-5">
-                <Fragment set:html={serviceIconSVGs[service.title]} />
-              </svg>
+            <!-- Service image -->
+            <div class="relative aspect-[16/9] overflow-hidden" style="background-color: var(--color-surface);">
+              <img
+                src={service.image}
+                alt={service.title}
+                class="h-full w-full object-cover transition-transform duration-500 group-hover:scale-105"
+                loading="lazy"
+              />
             </div>
-            <h3 class="text-base font-semibold mb-2" style="color: var(--color-text-primary);">{service.title}</h3>
-            <p class="text-sm leading-relaxed" style="color: var(--color-text-secondary);">{service.description}</p>
+            <div class="p-6">
+              <div
+                class={`h-10 w-10 rounded-xl flex items-center justify-center mb-4 transition-transform duration-300 group-hover:scale-110 ${service.bgClass} ${service.colorClass}`}
+                aria-hidden="true"
+              >
+                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="h-5 w-5">
+                  <Fragment set:html={serviceIconSVGs[service.title]} />
+                </svg>
+              </div>
+              <h3 class="text-base font-semibold mb-2" style="color: var(--color-text-primary);">{service.title}</h3>
+              <p class="text-sm leading-relaxed" style="color: var(--color-text-secondary);">{service.description}</p>
+            </div>
           </div>
         ))}
       </div>
@@ -255,14 +282,17 @@ const serviceIconSVGs = {
           {
             quote: "That's why you come to Puff Paradise Smoke and Vape Shop — we keep the hottest flavors in stock and ready for you!",
             author: 'Google Review',
+            avatar: 'https://picsum.photos/seed/puffparadise-review1/120/120',
           },
           {
             quote: "Come check out Puff Paradise Smoke and experience your new favorite spot for all things. Huge selection, top brands, and unbeatable vibes.",
             author: 'Facebook',
+            avatar: 'https://picsum.photos/seed/puffparadise-review2/120/120',
           },
           {
             quote: "Great vibes in Forney, TX. Amazing atmosphere and enjoyable moments every visit. Truly a community gem.",
             author: 'Google Review',
+            avatar: 'https://picsum.photos/seed/puffparadise-review3/120/120',
           },
         ].map(testimonial => (
           <div
@@ -284,8 +314,17 @@ const serviceIconSVGs = {
             <blockquote class="text-sm leading-relaxed mb-4" style="color: var(--color-text-primary); line-height: 1.7;">
               "{testimonial.quote}"
             </blockquote>
-            <footer class="text-xs font-medium" style="color: var(--color-text-secondary);">
-              — {testimonial.author}
+            <footer class="flex items-center gap-3">
+              <img
+                src={testimonial.avatar}
+                alt=""
+                class="h-10 w-10 rounded-full object-cover shrink-0"
+                loading="lazy"
+                aria-hidden="true"
+              />
+              <span class="text-xs font-medium" style="color: var(--color-text-secondary);">
+                — {testimonial.author}
+              </span>
             </footer>
           </div>
         ))}
