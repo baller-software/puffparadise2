@@ -256,6 +256,22 @@ Not Applicable.
 - Use content collections (`src/content/`) for structured Markdown content with schema validation
 - Use `getStaticPaths()` for dynamic routes when generating pages from collections
 
+### GitHub Pages Base Path
+
+When a site is deployed to GitHub Pages as a project site (served from `https://<user>.github.io/<repo>/` rather than a custom domain at the root), Astro must be told about the subpath. Without this, generated asset URLs (e.g. `/_astro/*.css`) point at the domain root and 404.
+
+- **Set `base` in `astro.config.mjs`** to the repo name with a leading slash — e.g. `base: '/<repo-name>'`. The `base` should match the GitHub Pages subpath exactly.
+- **Don't hardcode absolute internal links.** Any `href="/..."` or `src="/..."` to an in-site route or public asset must be prefixed with the base. Compute it once per component:
+  ```astro
+  ---
+  const base = import.meta.env.BASE_URL.replace(/\/$/, '');
+  ---
+  <a href={`${base}/about`}>About</a>
+  <link rel="icon" href={`${base}/favicon.svg`} />
+  ```
+  External URLs (`https://...`, `mailto:`, `tel:`) and in-page anchors (`#section`) are unaffected and should stay as-is.
+- **Custom domain at the root:** If the site is later moved to a custom apex/subdomain, remove the `base` setting so links resolve at `/` again. Keep the `${base}` pattern in components — with `base: '/'` it resolves to an empty string and the links still work.
+
 ### Library Usage Patterns
 
 #### Tailwind CSS in Astro

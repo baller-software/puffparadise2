@@ -1,8 +1,9 @@
 ---
+const base = import.meta.env.BASE_URL.replace(/\/$/, '');
 const navLinks = [
-  { href: '/', label: 'Home' },
-  { href: '/about', label: 'About' },
-  { href: '/contact', label: 'Contact' },
+  { href: `${base}/`, label: 'Home' },
+  { href: `${base}/about`, label: 'About' },
+  { href: `${base}/contact`, label: 'Contact' },
 ];
 
 const currentPath = Astro.url.pathname;
@@ -13,7 +14,7 @@ const currentPath = Astro.url.pathname;
     <div class="flex h-16 items-center justify-between">
 
       <!-- Logo -->
-      <a href="/" class="flex items-center gap-3 no-underline" aria-label="Puff Paradise Home">
+      <a href={`${base}/`} class="flex items-center gap-3 no-underline" aria-label="Puff Paradise Home">
         <div class="flex h-9 w-9 items-center justify-center rounded-lg" style="background-color: var(--color-primary);">
           <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" class="h-5 w-5 text-white">
             <path d="M11.644 1.59a.75.75 0 01.712 0l9.75 5.25a.75.75 0 010 1.32l-9.75 5.25a.75.75 0 01-.712 0l-9.75-5.25a.75.75 0 010-1.32l9.75-5.25z" />

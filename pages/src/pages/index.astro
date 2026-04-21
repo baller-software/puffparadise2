@@ -1,6 +1,8 @@
 ---
 import BaseLayout from '../layouts/BaseLayout.astro';
 
+const base = import.meta.env.BASE_URL.replace(/\/$/, '');
+
 const valueProps = [
   {
     icon: 'fire',
@@ -111,7 +113,7 @@ const serviceIconSVGs = {
         <!-- CTA Buttons -->
         <div class="flex flex-col sm:flex-row gap-4">
           <a
-            href="/contact"
+            href={`${base}/contact`}
             class="inline-flex items-center justify-center gap-2 rounded-lg px-8 py-4 text-base font-semibold text-white transition-all duration-200 hover:-translate-y-0.5 hover:shadow-xl"
             style="background-color: var(--color-primary); min-height: 48px;"
           >
@@ -306,7 +308,7 @@ const serviceIconSVGs = {
       </p>
       <div class="flex flex-col sm:flex-row gap-4 justify-center">
         <a
-          href="/contact"
+          href={`${base}/contact`}
           class="inline-flex items-center justify-center gap-2 rounded-lg bg-white px-8 py-4 text-base font-semibold transition-all duration-200 hover:-translate-y-0.5 hover:shadow-xl"
           style="color: var(--color-primary); min-height: 48px;"
         >
